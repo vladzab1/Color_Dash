@@ -7,6 +7,7 @@ public class DrawWithPrefabs : MonoBehaviour
     public GameObject ice;
     public GameObject slime;
     public GameObject trampoline;
+    public GameObject magnet;
 
     public float spawnRate = 0.001f;
     private float nextSpawnTime;
@@ -44,19 +45,57 @@ public class DrawWithPrefabs : MonoBehaviour
     }
 
     void TrySpawn(Vector3 pos)
-    {
-        if (currentDrawAmount >= maxDrawAmount)
-            return; // більше малювати не можна
+{
+    if (currentDrawAmount >= maxDrawAmount)
+        return;
 
-        if (Time.time >= nextSpawnTime && IsInsideDrawAreas(pos))
+    if (Time.time < nextSpawnTime)
+        return;
+
+    bool spawned = false;
+
+    foreach (Collider2D area in drawAreas)
+    {
+        if (area == null) continue;
+
+        if (area.OverlapPoint(pos))
         {
+            // всередині зони — спавнимо там, де тикнув
             pos.z = -1.75f;
             Instantiate(prefab, pos, Quaternion.identity);
-            nextSpawnTime = Time.time + spawnRate;
+            spawned = true;
+            break;
+        }
+        else if (pos.y > area.bounds.max.y)
+        {
+            // точка вище зони — робимо raycast зверху вниз
+            Vector2 rayOrigin = new Vector2(pos.x, area.bounds.max.y + 5f); // 5 юнітів вище зони
+            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, 100f, 1 << area.gameObject.layer);
 
-            currentDrawAmount++; // збільшуємо лічильник
+            if (hit.collider == area)
+            {
+                Vector3 spawnPos = hit.point;
+                spawnPos.z = -1.75f;
+                Instantiate(prefab, spawnPos, Quaternion.identity);
+                spawned = true;
+                break;
+            }
         }
     }
+
+    if (spawned)
+    {
+        nextSpawnTime = Time.time + spawnRate;
+        currentDrawAmount++;
+    }
+}
+
+
+
+
+
+
+
     public void ResetDrawAmount()
 {
     currentDrawAmount = 0;
@@ -79,4 +118,5 @@ public class DrawWithPrefabs : MonoBehaviour
     public void Ice() => prefab = ice;
     public void Slime() => prefab = slime;
     public void Trampoline() => prefab = trampoline;
+    public void Magnet() => prefab = magnet;
 }

@@ -7,10 +7,12 @@ public class newСolors : MonoBehaviour
 {
     public GameObject[] Buttons;
     public GameObject BounceButton;
+    public GameObject MagnetButton;
     public GameObject NewPaint;
     public string currentLevel;
 
     private bool isBounceActivated = false;
+    private bool isMagnetActivated = false;
 
     void Start() {
         NewPaint.SetActive(false);
@@ -21,6 +23,9 @@ public class newСolors : MonoBehaviour
     {
         if(!isBounceActivated) {
             BounceButton.SetActive(false);
+        }
+        if (!isMagnetActivated) {
+            MagnetButton.SetActive(false);
         }
         for (byte i = 1; i < 8; i++)
         {
@@ -37,24 +42,24 @@ public class newСolors : MonoBehaviour
                     }
 
                 }
+                if (i == 2)
+                {
+                    currentLevel = SceneManager.GetActiveScene().name;
+                    if (currentLevel == "Level_3" && !isBounceActivated) {
+                        MagnetButton.SetActive(true);
+                        NewPaint.SetActive(true);
+                        Debug.Log("MagnetButton");
+                    }
+
+                }
             }
         } 
     }
     public void Close() {
         NewPaint.SetActive(false);
         isBounceActivated = true;
+        isMagnetActivated = true;
         Debug.Log("Closing NewPaint object");
 
     }
-    //  GameObject FindByName(GameObject[] Buttons, string name)
-    // {
-    //     foreach (GameObject obj in Buttons)
-    //     {
-    //         if (obj != null && obj.name == name)
-    //         {
-    //             return obj;
-    //         }
-    //     }
-    //     return null;
-    // }
 }

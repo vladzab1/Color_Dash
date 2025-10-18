@@ -80,10 +80,10 @@ public class Open : MonoBehaviour
         }
     }
 
-    // public void PlayOpenLevel_3()
-    // {
-    //     SceneManager.LoadScene("Level_3");
-    // }
+    public void PlayOpenLevel_3()
+    {
+        SceneManager.LoadScene("Level_3");
+    }
     // public void PlayOpenLevel_4()
     // {
     //     SceneManager.LoadScene("Level_4");
