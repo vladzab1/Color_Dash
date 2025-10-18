@@ -14,44 +14,35 @@ public class WinScripts : MonoBehaviour
     private string currentLevel;
     private float starsLevel;
     
-
     public Transform[] starSpawnPoints;
     public GameObject starPrefab;
     public GameObject WinMenu;
     
-    Dictionary<string, float> StarsLevel = new Dictionary<string, float>()
-    {
-        { "Level_1", 0 },
-        { "Level_2", 0 },
-        { "Level_3", 0 },
-        { "Level_4", 0 },
-        { "Level_5", 0 },
-        { "Level_6", 0 },
-        { "Level_7", 0 },
-    }; 
-    
+   
     void Start()
     {
         levelStartTime = Time.time;
-        WinMenu.SetActive(false);
+        if (WinMenu != null) WinMenu.SetActive(false);
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
+        if (DrawPrefabs == null) return;
         levelFinishTime = Time.time - levelStartTime;
         Debug.Log("WIN");
-        Counting_Stars(); 
         currentLevel = SceneManager.GetActiveScene().name;
+        Counting_Stars(); 
     }
 
     void Counting_Stars()
     {
+        if (DrawPrefabs == null) return;
+
         if (levelFinishTime < 15f && DrawPrefabs.currentDrawAmount < 200)
         {
             SpawnStars(3);
             stars = 3;
         }
-
         else if (levelFinishTime < 30f && DrawPrefabs.currentDrawAmount < 300)
         {
             SpawnStars(2);
@@ -62,21 +53,26 @@ public class WinScripts : MonoBehaviour
             SpawnStars(1);
             stars = 1;
         }
-        Debug.Log($"Player earned {stars} stars. Time: {levelFinishTime}, Draws: {DrawPrefabs.currentDrawAmount}");
     }
 
     void SpawnStars(byte PowerGame)
     {
+        if (WinMenu == null || starPrefab == null || CanvasObject == null || starSpawnPoints == null) return;
+
         if (PowerGame == 3)
         {
             for (byte i = 0; i < 3; i++)
             {
+                if (i >= starSpawnPoints.Length || starSpawnPoints[i] == null) continue;
+
                 WinMenu.SetActive(true);
                 SetSurfaces(false);
                 starsLevel = 3;
-                StarsLevel[currentLevel] = starsLevel;
+                SaveManager.Instance.SetStars(currentLevel, starsLevel);
+
                 var spawn = Instantiate(starPrefab, starSpawnPoints[i].position, Quaternion.identity);
                 spawn.transform.SetParent(CanvasObject.transform);
+                Pokas();
             }
         }
 
@@ -84,30 +80,50 @@ public class WinScripts : MonoBehaviour
         {
             for (byte i = 0; i < 2; i++)
             {
+                if (i >= starSpawnPoints.Length || starSpawnPoints[i] == null) continue;
+
                 WinMenu.SetActive(true);
                 SetSurfaces(false);
                 starsLevel = 2;
-                StarsLevel[currentLevel] = starsLevel;
+                SaveManager.Instance.SetStars(currentLevel, starsLevel);
+
                 var spawn = Instantiate(starPrefab, starSpawnPoints[i].position, Quaternion.identity);
                 spawn.transform.SetParent(CanvasObject.transform);
+                Pokas();
             }
         }
 
         if (PowerGame == 1)
         {
+            if (starSpawnPoints.Length == 0 || starSpawnPoints[0] == null) return;
+
             WinMenu.SetActive(true);
             SetSurfaces(false);
-            starsLevel = 3;
-            StarsLevel[currentLevel] = starsLevel;
-            var spawn =Instantiate(starPrefab, starSpawnPoints[0].position, Quaternion.identity);
+            starsLevel = 1;
+            SaveManager.Instance.SetStars(currentLevel, starsLevel);
+
+            var spawn = Instantiate(starPrefab, starSpawnPoints[0].position, Quaternion.identity);
             spawn.transform.SetParent(CanvasObject.transform);
+            Pokas();
         }
     }
+
     private void SetSurfaces(bool state)
     {
+        if (Surfaces == null) return;
+
         foreach (GameObject obj in Surfaces)
         {
-            obj.SetActive(state);
+            if (obj != null) obj.SetActive(state);
         }
     }
+   void Pokas() 
+{
+    for (byte i = 1; i <= 7; i++) 
+    {
+        float value = SaveManager.Instance.StarsLevel[$"Level_{i}"];
+        Debug.Log($"Level_{i} = {value}");
+    }
+}
+
 }
