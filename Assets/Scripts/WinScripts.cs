@@ -38,12 +38,12 @@ public class WinScripts : MonoBehaviour
     {
         if (DrawPrefabs == null) return;
 
-        if (levelFinishTime < 15f && DrawPrefabs.currentDrawAmount < 200)
+        if (levelFinishTime < 22f && DrawPrefabs.currentDrawAmount < 350)
         {
             SpawnStars(3);
             stars = 3;
         }
-        else if (levelFinishTime < 30f && DrawPrefabs.currentDrawAmount < 300)
+        else if (levelFinishTime < 40f && DrawPrefabs.currentDrawAmount < 500)
         {
             SpawnStars(2);
             stars = 2;

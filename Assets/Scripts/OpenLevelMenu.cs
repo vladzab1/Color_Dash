@@ -29,23 +29,23 @@ public class Open : MonoBehaviour
             {
                 if (value == 1)
                 {
-                    GameObject obj = FindByName(Stars, $"StarsLevel_{i}_1");
+                    GameObject obj = FindByName(Stars, $"StarLevel_{i}_1");
                     obj.SetActive(true);
                 }
                 if (value == 2)
                 {
-                    GameObject obj = FindByName(Stars, $"StarsLevel_{i}_1");
+                    GameObject obj = FindByName(Stars, $"StarLevel_{i}_1");
                     obj.SetActive(true);
-                    GameObject obj1 = FindByName(Stars, $"StarsLevel_{i}_2");
+                    GameObject obj1 = FindByName(Stars, $"StarLevel_{i}_2");
                     obj1.SetActive(true);
                 }
                 if (value == 3)
                 {
-                    GameObject obj = FindByName(Stars, $"StarsLevel_{i}_1");
+                    GameObject obj = FindByName(Stars, $"StarLevel_{i}_1");
                     obj.SetActive(true);
-                    GameObject obj1 = FindByName(Stars, $"StarsLevel_{i}_2");
+                    GameObject obj1 = FindByName(Stars, $"StarLevel_{i}_2");
                     obj1.SetActive(true);
-                    GameObject obj2 = FindByName(Stars, $"StarsLevel_{i}_3");
+                    GameObject obj2 = FindByName(Stars, $"StarLevel_{i}_3");
                     obj2.SetActive(true);
                 }
             }
@@ -84,16 +84,26 @@ public class Open : MonoBehaviour
     {
         SceneManager.LoadScene("Level_3");
     }
-    // public void PlayOpenLevel_4()
-    // {
-    //     SceneManager.LoadScene("Level_4");
-    // }
-    // public void PlayOpenLevel_5()
-    // {
-    //     SceneManager.LoadScene("Level_5");
-    // }
+     public void PlayOpenLevel_4()
+     {
+         SceneManager.LoadScene("Level_4");
+     }
+     public void PlayOpenLevel_5()
+     {
+         SceneManager.LoadScene("Level_5");
+     }
     // public void PlayOpenLevel_6()
     // {
     //     SceneManager.LoadScene("Level_6");
     // }
+    public void ExitGame()
+    {
+        #if UNITY_EDITOR
+            // Якщо запускаєш гру прямо в Unity Editor
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            // На телефонах або ПК
+            Application.Quit();
+        #endif
+    }
 }

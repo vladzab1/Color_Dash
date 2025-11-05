@@ -26,7 +26,7 @@ public class SaveManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
         
-        // LoadProgress();
+        LoadProgress();
     }
 
     public void SetStars(string levelName, float stars)
@@ -36,29 +36,31 @@ public class SaveManager : MonoBehaviour
             if (stars > StarsLevel[levelName])
             {
                 StarsLevel[levelName] = stars;
-                // PlayerPrefs.SetFloat(levelName, stars);
-                // PlayerPrefs.Save();
-                
+                PlayerPrefs.SetFloat(levelName, stars);
+                PlayerPrefs.Save();
             }
         }
     }
 
-    // public void LoadProgress()
-    // {
-    //     foreach (var key in new List<string>(StarsLevel.Keys))
-    //     {
-    //         StarsLevel[key] = PlayerPrefs.GetFloat(key, 0);
-    //     }
-    // }
-// public void ResetProgress()
-//     {
-//         foreach (var key in new List<string>(StarsLevel.Keys))
-//         {
-//             StarsLevel[key] = 0;
-//             PlayerPrefs.DeleteKey(key); 
-//         }
+    
+    
+    
+    public void LoadProgress()
+     {
+         foreach (var key in new List<string>(StarsLevel.Keys))
+         {
+             StarsLevel[key] = PlayerPrefs.GetFloat(key, 0);
+         }
+     }
+ public void ResetProgress()
+     {
+         foreach (var key in new List<string>(StarsLevel.Keys))
+        {
+             StarsLevel[key] = 0;
+             PlayerPrefs.DeleteKey(key); 
+         }
 
-//         PlayerPrefs.Save();
-//         Debug.Log("🔥 Усі збереження (StarsLevel) анульовано!");
-//     }
+         PlayerPrefs.Save();
+         Debug.Log("🔥 Усі збереження (StarsLevel) анульовано!");
+     }
  }

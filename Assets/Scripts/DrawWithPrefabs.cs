@@ -8,6 +8,7 @@ public class DrawWithPrefabs : MonoBehaviour
     public GameObject slime;
     public GameObject trampoline;
     public GameObject magnet;
+    public GameObject teleport;
 
     public float spawnRate = 0.001f;
     private float nextSpawnTime;
@@ -48,52 +49,86 @@ public class DrawWithPrefabs : MonoBehaviour
 {
     if (currentDrawAmount >= maxDrawAmount)
         return;
-
+        
     if (Time.time < nextSpawnTime)
         return;
-
+    
     bool spawned = false;
-
-    foreach (Collider2D area in drawAreas)
+    
+    // ВАЖЛИВО: ставимо Z = 0 для перевірки OverlapPoint (2D колайдери на площині Z=0)
+    Vector2 pos2D = new Vector2(pos.x, pos.y);
+    
+    Debug.Log($"Перевіряю {drawAreas.Length} зон. Позиція кліку 2D: {pos2D}");
+    
+    // Спочатку перевіряємо, чи клік всередині якоїсь зони
+    for (int i = 0; i < drawAreas.Length; i++)
     {
-        if (area == null) continue;
-
-        if (area.OverlapPoint(pos))
+        Collider2D area = drawAreas[i];
+        
+        if (area == null)
         {
-            // всередині зони — спавнимо там, де тикнув
-            pos.z = -1.75f;
-            Instantiate(prefab, pos, Quaternion.identity);
+            Debug.Log($"Зона {i} = NULL");
+            continue;
+        }
+        
+        Debug.Log($"Зона {i} ({area.name}): bounds={area.bounds}, OverlapPoint={area.OverlapPoint(pos2D)}");
+        
+        if (area.OverlapPoint(pos2D))
+        {
+            Debug.Log($"✅ СПАВН в зоні {i} ({area.name})");
+            Vector3 spawnPos = new Vector3(pos2D.x, pos2D.y, -1.75f);
+            Instantiate(prefab, spawnPos, Quaternion.identity);
             spawned = true;
             break;
         }
-        else if (pos.y > area.bounds.max.y)
+    }
+    
+    // Якщо не заспавнили всередині, шукаємо найближчу межу
+    if (!spawned)
+    {
+        Debug.Log("Не знайшов клік всередині жодної зони. Шукаю найближчу межу...");
+        
+        float minDistance = float.MaxValue;
+        Vector3 bestSpawnPos = Vector3.zero;
+        bool foundNearby = false;
+        
+        for (int i = 0; i < drawAreas.Length; i++)
         {
-            // точка вище зони — робимо raycast зверху вниз
-            Vector2 rayOrigin = new Vector2(pos.x, area.bounds.max.y + 5f); // 5 юнітів вище зони
-            RaycastHit2D hit = Physics2D.Raycast(rayOrigin, Vector2.down, 100f, 1 << area.gameObject.layer);
-
-            if (hit.collider == area)
+            Collider2D area = drawAreas[i];
+            if (area == null) continue;
+            
+            Vector2 closestPoint = area.ClosestPoint(pos2D);
+            float distance = Vector2.Distance(pos2D, closestPoint);
+            
+            Debug.Log($"Зона {i} ({area.name}): відстань={distance}, найближча точка={closestPoint}");
+            
+            if (distance < minDistance && distance < 10f)
             {
-                Vector3 spawnPos = hit.point;
-                spawnPos.z = -1.75f;
-                Instantiate(prefab, spawnPos, Quaternion.identity);
-                spawned = true;
-                break;
+                minDistance = distance;
+                bestSpawnPos = new Vector3(closestPoint.x, closestPoint.y, -1.75f);
+                foundNearby = true;
+                Debug.Log($"⭐ Нова найближча зона: {i} ({area.name})");
             }
         }
+        
+        if (foundNearby)
+        {
+            Debug.Log($"✅ СПАВН на межі. Позиція: {bestSpawnPos}");
+            Instantiate(prefab, bestSpawnPos, Quaternion.identity);
+            spawned = true;
+        }
+        else
+        {
+            Debug.Log("❌ Не знайшов жодної підходящої зони");
+        }
     }
-
+    
     if (spawned)
     {
         nextSpawnTime = Time.time + spawnRate;
         currentDrawAmount++;
     }
 }
-
-
-
-
-
 
 
     public void ResetDrawAmount()
@@ -118,5 +153,6 @@ public class DrawWithPrefabs : MonoBehaviour
     public void Ice() => prefab = ice;
     public void Slime() => prefab = slime;
     public void Trampoline() => prefab = trampoline;
-    public void Magnet() => prefab = magnet;
+    public void Magnet() => prefab = magnet;    
+    public void Teleport() => prefab = teleport;
 }
